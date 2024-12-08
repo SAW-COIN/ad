@@ -92,7 +92,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             max-width: 90%;
-            text-align: right;
+            text-align: left;
             font-size: 0.9rem;
         }
 
@@ -176,11 +176,11 @@
                 const card = document.createElement("div");
                 card.className = "user-card";
                 card.innerHTML = `
-                    <h2>المعرف: ${user.telegram_id}</h2>
-                    <p>اسم المستخدم: ${user.username || "غير متوفر"}</p>
-                    <p>الرصيد: ${user.balance || 0}</p>
-                    <p>عدد الأصدقاء: ${user.friends || 0}</p>
-                    <p>عدد الدعوات: ${user.invites ? user.invites.length : 0}</p>
+                    <h2>ID: ${user.telegram_id}</h2>
+                    <p>username: ${user.username || "unavailable"}</p>
+                    <p>Balance: ${user.balance || 0}</p>
+                    <p>Invitations: ${user.friends || 0}</p>
+                    <p>Friends: ${user.invites ? user.invites.length : 0}</p>
                 `;
                 userCards.appendChild(card);
             });
