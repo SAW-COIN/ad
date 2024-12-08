@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - قائمة المستخدمين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1c1c1c;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #282828;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .search-bar button {
+            padding: 10px;
+            background-color: #6a0dad;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #8e44ad;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-radius: 20px;
+            border: 1px solid #444;
+        }
+
+        table th {
+            background-color: #6a0dad;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        table tr:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>قائمة المستخدمين</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="ابحث بواسطة الايدي أو اليوزر...">
+            <button onclick="searchUser()">بحث</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>المعرف</th>
+                    <th>اسم المستخدم</th>
+                    <th>الرصيد</th>
+                    <th>عدد الأصدقاء</th>
+                    <th>عدد الدعوات</th>
+                </tr>
+            </thead>
+            <tbody id="userTable">
+                <!-- يتم جلب البيانات ديناميكيًا -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const ADMIN_ID = 6793556284; // استبدل بمعرف الأدمن
+
+        // التحقق من بيئة Telegram WebApp
+        async function checkAdmin() {
+            const tg = window.Telegram.WebApp.initDataUnsafe;
+            const userId = tg?.user?.id;
+
+            if (!userId || userId !== ADMIN_ID) {
+                alert("🚫 غير مصرح لك بالوصول إلى هذه الصفحة.");
+                document.body.innerHTML = "<h2>🚫 غير مصرح لك بالوصول</h2>";
+                return;
+            }
+
+            fetchUsers();
+        }
+
+        // جلب قائمة المستخدمين
+        async function fetchUsers() {
+            try {
+                const response = await fetch("https://lnxyjtpnvowbptbonzht.supabase.co/rest/v1/users", {
+                    headers: {
+                        "apikey": "YOUR_SUPABASE_KEY", // استبدل بالمفتاح الخاص بك
+                        "Authorization": "Bearer YOUR_SUPABASE_KEY"
+                    }
+                });
+                const data = await response.json();
+                displayUsers(data);
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
+            }
+        }
+
+        // عرض المستخدمين في الجدول
+        function displayUsers(users) {
+            const userTable = document.getElementById("userTable");
+            userTable.innerHTML = "";
+
+            users.forEach(user => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${user.telegram_id}</td>
+                    <td>${user.username || "غير متوفر"}</td>
+                    <td>${user.balance || 0}</td>
+                    <td>${user.friends || 0}</td>
+                    <td>${user.invites ? user.invites.length : 0}</td>
+                `;
+                userTable.appendChild(row);
+            });
+        }
+
+        // البحث عن مستخدم
+        function searchUser() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#userTable tr");
+
+            rows.forEach(row => {
+                const [id, username] = row.children;
+                const isMatch = id.textContent.includes(input) || username.textContent.toLowerCase().includes(input);
+                row.style.display = isMatch ? "" : "none";
+            });
+        }
+
+        checkAdmin();
+    </script>
+</body>
+</html>
