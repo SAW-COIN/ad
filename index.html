@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - قائمة المستخدمين</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
+
+       body{
             font-family: Arial, sans-serif;
             background-color: #1c1c1c;
             color: #fff;
@@ -82,6 +83,7 @@
         table tr:hover {
             background-color: #444;
         }
+        /* نفس التنسيق السابق */
     </style>
 </head>
 <body>
@@ -108,14 +110,22 @@
     </div>
 
     <script>
-        const ADMIN_ID = 6793556284; // استبدل بمعرف الأدمن
+        const ADMIN_ID = 6793556284; // معرف الأدمن
+        const supabaseUrl = "https://lnxyjtpnvowbptbonzht.supabase.co/rest/v1/users";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxueHlqdHBudm93YnB0Ym9uemh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgwMjg2ODksImV4cCI6MjA0MzYwNDY4OX0.Aznwb14FQvRrOMlsVqzLReFSwuJ66HZ4Y_Tq0Dvm5Is"; // استبدل بمفتاحك
 
-        // التحقق من بيئة Telegram WebApp
-        async function checkAdmin() {
-            const tg = window.Telegram.WebApp.initDataUnsafe;
-            const userId = tg?.user?.id;
+        const headers = {
+            "apikey": supabaseKey,
+            "Authorization": `Bearer ${supabaseKey}`
+        };
 
-            if (!userId || userId !== ADMIN_ID) {
+        const tg = window.Telegram.WebApp;
+
+        // التحقق من الأدمن
+        function checkAdmin() {
+            const userId = tg.initDataUnsafe?.user?.id;
+
+            if (!userId || userId != ADMIN_ID) {
                 alert("🚫 غير مصرح لك بالوصول إلى هذه الصفحة.");
                 document.body.innerHTML = "<h2>🚫 غير مصرح لك بالوصول</h2>";
                 return;
@@ -127,12 +137,7 @@
         // جلب قائمة المستخدمين
         async function fetchUsers() {
             try {
-                const response = await fetch("https://lnxyjtpnvowbptbonzht.supabase.co/rest/v1/users", {
-                    headers: {
-                        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxueHlqdHBudm93YnB0Ym9uemh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgwMjg2ODksImV4cCI6MjA0MzYwNDY4OX0.Aznwb14FQvRrOMlsVqzLReFSwuJ66HZ4Y_Tq0Dvm5Is"; // استبدل بالمفتاح الخاص بك
-                        "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxueHlqdHBudm93YnB0Ym9uemh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgwMjg2ODksImV4cCI6MjA0MzYwNDY4OX0.Aznwb14FQvRrOMlsVqzLReFSwuJ66HZ4Y_Tq0Dvm5Is"
-                    }
-                });
+                const response = await fetch(supabaseUrl, { headers });
                 const data = await response.json();
                 displayUsers(data);
             } catch (error) {
@@ -140,7 +145,7 @@
             }
         }
 
-        // عرض المستخدمين في الجدول
+        // عرض المستخدمين
         function displayUsers(users) {
             const userTable = document.getElementById("userTable");
             userTable.innerHTML = "";
